@@ -37,10 +37,10 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2025-01-01' = {
   }
 }
 
-resource resourceGroupLock 'Microsoft.Authorization/locks@2020-05-01' = {
-  name: 'resource-group-cannot-delete-lock'
-  properties: {
-    level: 'CanNotDelete'
-    notes: 'Prevents accidental deletion of this resource group and its resources.'
-  }
-}
+// resource resourceGroupLock 'Microsoft.Authorization/locks@2020-05-01' = {
+//   name: 'resource-group-cannot-delete-lock'
+//   properties: {
+//     level: 'CanNotDelete'
+//     notes: 'Prevents accidental deletion of this resource group and its resources.'
+//   }
+// }
