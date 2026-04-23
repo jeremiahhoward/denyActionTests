@@ -76,7 +76,7 @@ main() {
     echo "Preparing prerequisites for stage 4..."
     bash "$script_dir/1-newDeploymentStack.sh" "$rg_name" true "sub"
 
-    bash "$script_dir/4-applySubDeny.sh" "$rg_name" "$stage4_stack_name"
+    bash "$script_dir/4-applySubDenyAction.sh" "$rg_name" "$stage4_stack_name"
     return
   fi
 

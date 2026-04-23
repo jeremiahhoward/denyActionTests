@@ -40,7 +40,7 @@ The scripts currently work as a staged walkthrough.
 
 * [1-newDeploymentStack.sh](./1-newDeploymentStack.sh) creates the initial resource group and deploys [stage1.bicep](./stage1.bicep) with no deny settings.
 * [2-demonstrateResourceLevelBlock.sh](./2-demonstrateResourceLevelBlock.sh) creates a subscription-scoped deployment stack with `denyDelete` and attempts to delete the managed storage account.
-* [3-applyGroupDenyAction.sh](./3-applyGroupDenyAction.sh) removes the subscription-scoped stack, creates a resource-group-scoped deployment stack with `denyDelete`, and then attempts to * [4-applySubDeny.sh](./4-applySubDeny.sh) uses the existing subscription-scoped stack from stage 2 and attempts to delete the resource group.
+* [3-applyGroupDenyAction.sh](./3-applyGroupDenyAction.sh) removes the subscription-scoped stack, creates a resource-group-scoped deployment stack with `denyDelete`, and then attempts to * [4-applySubDenyAction.sh](./4-applySubDenyAction.sh) uses the existing subscription-scoped stack from stage 2 and attempts to delete the resource group.
 delete the resource group.
 * [attemptStorageAccountDelete.sh](./attemptStorageAccountDelete.sh) performs the storage account delete test and prints the delete result plus a follow-up query.
 * [attemptResourceGroupDelete.sh](./attemptResourceGroupDelete.sh) performs the resource group delete test and prints the delete result plus a follow-up query.
