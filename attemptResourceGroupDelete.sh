@@ -50,7 +50,7 @@ main() {
     echo "Resource group exists after blocked test: $exists_after_blocked_test"
 
     if [[ $delete_exit_code -ne 0 && $group_show_exit_code -eq 0 && "$exists_after_blocked_test" == "true" ]]; then
-      echo "Delete attempt was blocked as expected; resource group still exists."
+      printf '\033[1;32m%s\033[0m\n' "Delete attempt was blocked as expected; resource group still exists."
       exit 0
     fi
 
@@ -71,7 +71,7 @@ main() {
     echo "Resource group exists after deleted test: $exists_after_deleted_test"
 
     if [[ $group_show_exit_code -ne 0 && "$exists_after_deleted_test" == "false" ]]; then
-      echo "Delete attempt succeeded as expected; resource group has been removed."
+      printf '\033[1;32m%s\033[0m\n' "Delete attempt succeeded as expected; resource group has been removed."
       exit 0
     fi
 

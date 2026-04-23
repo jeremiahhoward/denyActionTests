@@ -21,8 +21,8 @@ main() {
     exit 1
   fi
 
-  echo "========== STAGE 4: RG-SCOPED DENY COMPARISON =========="
-  echo "Removing the subscription-scoped stack so only RG-scoped deny behavior remains..."
+  printf '\033[1;33m%s\033[0m\n' "========== STAGE 3: RG-SCOPED DENY COMPARISON =========="
+  echo "Ensuring no subscription-scoped stack exists..."
   if az stack sub show --name "$prior_success_stack_name" >/dev/null 2>&1; then
     az stack sub delete \
       --name "$prior_success_stack_name" \
@@ -58,17 +58,29 @@ main() {
     exit 1
   fi
 
-  echo "$conf" | jq '{name, provisioningState, denySettings: .denySettings, resources: .resources}'
   echo
-  echo "This setup is intentionally ineffective for protecting the resource group itself."
+  echo "This setup is intentionally shown to be ineffective for protecting the resource group itself."
   echo "Per Azure deployment stacks known issues, deleting the RG can bypass RG-scoped deny assignments."
   echo
-  echo "========== EXPECTED RESULT: RESOURCE GROUP DELETE SHOULD SUCCEED =========="
+  printf '\033[1;33m%s\033[0m\n' "========== EXPECTED RESULT: RESOURCE GROUP DELETE SHOULD SUCCEED =========="
   echo "Attempting RG deletion; the group scoped denyDelete setting should not prevent the deletion of the resource group."
   bash "$script_dir/attemptResourceGroupDelete.sh" "$rg_name" deleted
   echo
-  echo "========== DEMO COMPLETE =========="
-  echo "Stage 2 blocked storage account deletion, stage 3 validated sub-stack cascade behavior, and stage 4 showed RG-scoped comparison cleanup."
+
+  local continue_response
+  read -r -p "Continue to stage 4 (cascade test on subscription-scoped stack)? [y/N] " continue_response
+  if [[ "$continue_response" =~ ^[Yy]$ ]]; then
+    local stage4_stack_name
+    stage4_stack_name="${rg_name}-sub-stack"
+
+    echo "Preparing prerequisites for stage 4..."
+    bash "$script_dir/1-newDeploymentStack.sh" "$rg_name" true "sub"
+
+    bash "$script_dir/4-applySubDeny.sh" "$rg_name" "$stage4_stack_name"
+    return
+  fi
+
+  echo "Demo progress: stage 3 completed. Stage 4 remains optional."
 }
 
 main "$@"

@@ -20,8 +20,21 @@ main() {
     exit 1
   fi
 
-  echo "========== STAGE 3: CASCADE TEST ON EXISTING SUB STACK =========="
-  echo "Using existing subscription-scoped stack '$stack_name' from stage 2."
+  printf '\033[1;33m%s\033[0m\n' "========== STAGE 4: CASCADE TEST ON EXISTING SUB BASED STACK =========="
+  echo "Creating subscription-scoped stack '$stack_name' for stage 4 cascade test."
+
+  local rg_location
+  rg_location="$(az group show --name "$rg_name" --query location -o tsv)"
+
+  az stack sub create \
+    --name "$stack_name" \
+    --location "$rg_location" \
+    --deployment-resource-group "$rg_name" \
+    --template-file "$script_dir/stage1.bicep" \
+    --action-on-unmanage 'detachAll' \
+    --deny-settings-mode 'denyDelete' \
+    --yes \
+    >/dev/null
 
   local conf
   conf="$(az stack sub show --name "$stack_name")"
@@ -39,25 +52,15 @@ main() {
     exit 1
   fi
 
-  echo "$conf" | jq '{name, provisioningState, denySettings: .denySettings, resources: .resources}'
   echo
-  echo "========== EXPECTED RESULT: RESOURCE GROUP DELETE SHOULD SUCCEED =========="
-echo "Attempting RG deletion; the subscription scoped denyDelete setting should not prevent the deletion of the resource group."
- 
+  printf '\033[1;33m%s\033[0m\n' "========== EXPECTED RESULT: RESOURCE GROUP DELETE SHOULD SUCCEED =========="
+  echo "Attempting RG deletion; the subscription scoped denyDelete setting should not prevent the deletion of the resource group."
+
   bash "$script_dir/attemptResourceGroupDelete.sh" "$rg_name" deleted
 
-  echo
-  local continue_response
-  read -r -p "Continue to stage 4 (RG-scoped deny comparison)? [y/N] " continue_response
-  if [[ "$continue_response" =~ ^[Yy]$ ]]; then
-    bash "$script_dir/1-newDeploymentStack.sh" "$rg_name" true
-    bash "$script_dir/3-applyGroupDenyAction.sh" "$rg_name"
-    return
-  fi
 
-  echo "========== DEMO COMPLETE =========="
-  echo "Stage 3 confirmed RG delete outcome with the existing subscription-scoped stack."
+  printf '\033[1;32m%s\033[0m\n' "========== DEMO COMPLETE =========="
+  echo "Stage 4 confirmed RG delete outcome with the existing subscription-scoped stack."
 }
 
 main "$@"
-

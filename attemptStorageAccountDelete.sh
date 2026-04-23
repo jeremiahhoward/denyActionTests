@@ -48,15 +48,15 @@ main() {
 
   echo "Storage account query exit code: $show_exit_code"
   if [[ -n "$show_output" ]]; then
-    echo "Storage account query result:"
-    echo "$show_output"
+    echo "Storage account query returned results"
+    # echo "$show_output"
   else
     echo "Storage account query result: <none>"
   fi
 
   if [[ "$expected_outcome" == "blocked" ]]; then
     if [[ $delete_exit_code -ne 0 && $show_exit_code -eq 0 ]]; then
-      echo "Delete attempt was blocked as expected; storage account still exists."
+      printf '\033[1;32m%s\033[0m\n' "Delete attempt was blocked as expected; storage account still exists."
       exit 0
     fi
 
@@ -71,7 +71,7 @@ main() {
     fi
 
     if [[ $show_exit_code -ne 0 ]]; then
-      echo "Delete attempt succeeded as expected; storage account has been removed."
+      printf '\033[1;32m%s\033[0m\n' "Delete attempt succeeded as expected; storage account has been removed."
       exit 0
     fi
 

@@ -31,19 +31,18 @@ main() {
     exit 1
   fi
 
-  echo "========== STAGE 2: EFFECTIVE DENY VIA SUBSCRIPTION STACK =========="
-  echo "Creating subscription-scoped deployment stack with denyDelete..."
-  az stack sub create \
+  printf '\033[1;33m%s\033[0m\n' "========== STAGE 2: EFFECTIVE DENY VIA GROUP STACK =========="
+  echo "Updating group-scoped deployment stack with denyDelete..."
+  az stack group create \
     --name "$stack_name" \
-    --location "$rg_location" \
-    --deployment-resource-group "$rg_name" \
+    --resource-group "$rg_name" \
     --template-file "$script_dir/stage1.bicep" \
     --action-on-unmanage 'detachAll' \
     --deny-settings-mode 'denyDelete' --yes  \
     >/dev/null
 
   local conf
-  conf="$(az stack sub show --name "$stack_name")"
+  conf="$(az stack group show --resource-group "$rg_name" --name "$stack_name")"
 
   local provisioning_state
   provisioning_state="$(echo "$conf" | jq -r '(.properties.provisioningState // .provisioningState // "unknown")')"
@@ -58,16 +57,15 @@ main() {
     exit 1
   fi
 
-  echo "$conf" | jq '{name, provisioningState, denySettings: .denySettings, resources: .resources}'
   echo
-  echo "========== EXPECTED RESULT: STORAGE ACCOUNT DELETE SHOULD BE BLOCKED =========="
+  printf '\033[1;33m%s\033[0m\n' "========== EXPECTED RESULT: STORAGE ACCOUNT DELETE SHOULD BE BLOCKED =========="
   echo "Attempting storage account deletion for '$storage_account_name'; this stage should block the delete."
   bash "$script_dir/attemptStorageAccountDelete.sh" "$rg_name" "$storage_account_name" blocked
 
   local continue_response
   read -r -p "Continue to stage 3 (resource group delete test on existing sub stack)? [y/N] " continue_response
   if [[ "$continue_response" =~ ^[Yy]$ ]]; then
-    bash "$script_dir/4-applyCascadeIneffective.sh" "$rg_name" "$stack_name"
+    bash "$script_dir/3-applyGroupDenyAction.sh" "$rg_name" "$stack_name"
   fi
 }
 
